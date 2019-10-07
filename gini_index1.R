@@ -20,3 +20,4 @@ plot(LC(AirPassengers))
 
 
 plot(Lc(AirPassengers),col="darkred",lwd=2)
+

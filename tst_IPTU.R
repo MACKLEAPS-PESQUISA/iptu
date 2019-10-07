@@ -78,3 +78,4 @@ dado$ValorVenal
 
 valorAcima <- dado %>% select(ValorVenal) %>%
               filter(ValorVenal > 1000000)
+

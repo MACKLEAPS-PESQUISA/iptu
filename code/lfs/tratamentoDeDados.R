@@ -2,6 +2,8 @@ startTime <- Sys.time()
 library(dplyr)
 library(foreign)
 library(sf)
+library(tidyverse)
+library(ineq)
 
 #lendo a tabela LOG2018_CEM_RMSP.dbf
 tabela <- read.dbf("/home/tsuneki/Downloads/FAU/LOG2018/LOG2018_CEM_RMSP.dbf", as.is = F)[,c(6,19)]
@@ -47,14 +49,32 @@ geo <- geo[!is.na(geo$BAIRRO),]
 
 colnames(geo)[1] <- "Bairro"
 
-geo <- geo %>% mutate(Bairro = as.character(Bairro))
+bairros <- inner_join(bairros, geo, by = "Bairro")
+
+rm(geo)
+
+teste <- duplicated(bairros[,1])
+
+cout<-1
+
+for(i in 1:length(teste)){
+  i <- i+0
+  if(teste[i] == FALSE){
+    bairros[cout,] <- bairros[i,]
+    cout <- cout + 1
+  }
+}
+
+bairros <- bairros[-c(92:23502),]
+
+rm(cout, teste)
 
 #criando a tabela com os dados, bairros e geolocalkizacoes desejados
 tabelaFimBairros <- inner_join(aux, bairros, by = "Bairro")  
-tabelaFimBairros <- inner_join(tabelaFimBairros, geo, by = "Bairro") 
-tabelaFimBairros <- tabelaFimBairros %>% distinct()
 
-rm(aux,bairros,geo)
+rm(aux, bairros)
+
+tabelaFimBairros <- tabelaFimBairros %>% distinct()
 
 #calculo do valor venal
 for(i in 1:length(tabelaFimBairros[,1])){
@@ -62,35 +82,68 @@ for(i in 1:length(tabelaFimBairros[,1])){
   fracaoIdeal <- tabelaFimBairros[i,3] + 0
   m2Terreno <- tabelaFimBairros[i,7] + 0
   VVT <- areaTerreno*fracaoIdeal*m2Terreno
-
+  
   areaConstrucao <- tabelaFimBairros[i,5] + 0
   m2Construcao <- tabelaFimBairros[i,8] + 0
   FOBS <- tabelaFimBairros[i,9] + 0
   VVC <- areaConstrucao*m2Construcao*FOBS
-
+  
   VVI = VVC+VVT
   
-  tabelaFimBairros[i,12] <- paste(VVI)
+  tabelaFimBairros[i,13] <- paste(VVI)
 }
+
+rm(areaTerreno,fracaoIdeal,m2Terreno,VVT,areaConstrucao,m2Construcao,FOBS,VVC,VVI)
+
+# Coluna 13 = VVI
+colnames(tabelaFimBairros)[13] <- "VVI" 
+View(tabelaFimBairros)
+
+
+
+
 #adicionar ano na tabela
-tabelaFimBairros[,13] <- 95
+tabelaFimBairros[,14] <- 95
 
 #renomeacao das colunas
-names(tabelaFimBairros) = c("NOME.DO.CONTRIBUINTE", "CEP.DO.IMOVEL","FRACAO.IDEAL","AREA.DO.TERRENO","AREA.CONSTRUIDA","AREA.OCUPADA","VALOR.DO.M2.DO.TERRENO","VALOR.DO.M2.DE.CONSTRUCAO","FATOR.DE.OBSOLESCENCIA","BAIRRO","Z.FISCAL","VVI","ANO")
+names(tabelaFimBairros) = c("NOME.DO.CONTRIBUINTE", "CEP.DO.IMOVEL","FRACAO.IDEAL","AREA.DO.TERRENO","AREA.CONSTRUIDA","AREA.OCUPADA","VALOR.DO.M2.DO.TERRENO","VALOR.DO.M2.DE.CONSTRUCAO","FATOR.DE.OBSOLESCENCIA","BAIRRO","Z.FISCAL","GEOMETRIA","VVI","ANO")
 
-#criação da tabela final
-aux2 <- inner_join(tabelaFimBairros, geo, by = "BAIRRO") 
-
-rm(tabelaFimBairros)
-
-View(aux2)
 
 #criacao de um .csv da tabela tratada
-#write.csv(tabelaFimBairros, "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/tabelaFinal19.csv")
+write.csv(tabelaFimBairros, "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/tabelaFinal95.csv")
 endTime <- Sys.time()
 endTime - startTime
 
+#calculo do Gini
+ListaBairros <- unique(tabelaFimBairros$BAIRRO)
 
+giniFinal <- data_frame()
 
+bairroVVI <- tabelaFimBairros[,c(10,13)]
 
+x<- data_frame()
 
+i <- 1
+
+while(i <= length(ListaBairros)){
+  x <- data_frame()
+  x[1,1] <- ListaBairros[i]
+  x[1,2] <- NA
+  names(x) <- c("BAIRRO","VVI")
+  
+  x <- inner_join(x, bairroVVI, by="BAIRRO")
+  
+  x <- x[,c(1,3)]
+  colnames(x)[2] <- "VVI"
+  
+  aux <- x[,2]
+  aux <- as.numeric(unlist(aux))
+  gini <- Gini(aux)
+
+  giniFinal[i,1] <- x[1,1]
+  giniFinal[i,2] <- gini
+  i <- i + 1
+}
+
+  names(giniFinal) <- c("Bairro","Gini")
+  

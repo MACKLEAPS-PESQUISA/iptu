@@ -97,18 +97,16 @@ rm(areaTerreno,fracaoIdeal,m2Terreno,VVT,areaConstrucao,m2Construcao,FOBS,VVC,VV
 
 # Coluna 13 = VVI
 colnames(tabelaFimBairros)[13] <- "VVI" 
-View(tabelaFimBairros)
 
 #adicionar ano na tabela
-tabelaFimBairros[,14] <- 95
+tabelaFimBairros[,14] <- 1995
 
 #renomeacao das colunas
 names(tabelaFimBairros) = c("NOME.DO.CONTRIBUINTE", "CEP.DO.IMOVEL","FRACAO.IDEAL","AREA.DO.TERRENO","AREA.CONSTRUIDA","AREA.OCUPADA","VALOR.DO.M2.DO.TERRENO","VALOR.DO.M2.DE.CONSTRUCAO","FATOR.DE.OBSOLESCENCIA","BAIRRO","Z.FISCAL","GEOMETRIA","VVI","ANO")
 
 
 #criacao de um .csv da tabela tratada
-write.csv(tabelaFimBairros, "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/tabelaFinal95.csv")
-
+write.csv(tabelaFimBairros, "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/tabelaFinal1995.csv", sep = ";", dec = ".", row.names = F)
 
 #calculo do Gini
 ListaBairros <- unique(tabelaFimBairros$BAIRRO)
@@ -121,6 +119,7 @@ x<- data_frame()
 
 i <- 1
 
+#função de geração do Gini
 while(i <= length(ListaBairros)){
   x <- data_frame()
   x[1,1] <- ListaBairros[i]
@@ -143,6 +142,12 @@ while(i <= length(ListaBairros)){
 
 names(giniFinal) <- c("Bairro","Gini")
 rm(aux,bairroVVI,x,gini,i,ListaBairros)  
+
+giniFinal[,3] <- 1995
+colnames(giniFinal)[4] <- "Ano"
+
+#criação de um .csv com os dados do Gini
+write.table(giniFinal, file = "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/Gini1995.csv", sep = ";", dec = ".",row.names = F)
 
 endTime <- Sys.time()
 endTime - startTime

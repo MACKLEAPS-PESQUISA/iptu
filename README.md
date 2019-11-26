@@ -1,2 +1,3 @@
 # iptu
-Estudos sobre cálculos em cima do IPTU de São Paulo em R
+Calculo do indíce Gini baseado nos dados de IPTU do município de São Paulo
+

@@ -88,7 +88,7 @@ IPTU_CEP_BAIRROS[,14] <- 1995
 names(IPTU_CEP_BAIRROS) = c("NOME.DO.CONTRIBUINTE", "CEP.DO.IMOVEL","FRACAO.IDEAL","AREA.DO.TERRENO","AREA.CONSTRUIDA","AREA.OCUPADA","VALOR.DO.M2.DO.TERRENO","VALOR.DO.M2.DE.CONSTRUCAO","TIPO.DE.USO.DO.IMOVEL","FATOR.DE.OBSOLESCENCIA","BAIRRO","Z.FISCAL","VVI","ANO")
 
 #criacao do .csv da tabela tratada do IPTU
-write.table(IPTU_CEP_BAIRROS, "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/1995/IPTUfinal1995.csv", sep = ";", dec = ".", row.names = F)
+write.table(IPTU_CEP_BAIRROS, "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/1995/IPTUfinal1995Residencial.csv", sep = ";", dec = ".", row.names = F)
 
 '
 CALCULO DO GINI
@@ -136,6 +136,6 @@ giniFinal[,3] <- 1995
 names(giniFinal) <- c("Bairro","Gini","Ano")
 
 #criação de um .csv com os dados do Gini
-write.table(giniFinal, file = "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/1995/Gini1995.csv", sep = ";", dec = ".",row.names = F)
+write.table(giniFinal, file = "/home/tsuneki/Downloads/FAU/git/iptu/planilhas/resultados/1995/Gini1995Residencial.csv", sep = ";", dec = ".",row.names = F)
 
 rm(giniFinal)
